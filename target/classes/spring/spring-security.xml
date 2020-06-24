@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security 
+		http://www.springframework.org/schema/security/spring-security-4.2.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd"> 
+		
+		
+		
+    <!-- 
+    
+        当使用  mldn  java 进行登录 后跳转到    403页面  因为    mldn账号 没有   ADMIN角色
+     -->		
+	<!-- 本次进行认证管理的操作全部采用自动完成的处理形式，用户不再关系具体的认证处理，全部由Spring提供 -->
+	<security:http auto-config="true">	<!-- 启用HTTP访问认证 -->
+		<!-- 进行信息访问的时候如果发现授权出现了问题，禁止访问的时候配置的跳转路径 -->
+		<security:access-denied-handler error-page="/WEB-INF/pages/error_page_403.jsp"/>
+		<!-- 定义需要进行拦截的访问路径，拥有“ADMIN角色”的账户可以访问 -->
+		<security:intercept-url pattern="/pages/info/**" access="hasRole('ADMIN')"/>
+		<!-- <security:http-basic/> -->	<!-- 采用HTTP-Basic模式进行登录 -->
+		
+		
+		<security:http-basic/>
+	</security:http>
+	
+	<!-- 
+	 配置后  访问链接： http://127.0.0.1:8080/mldnspring-security/pages/info/url
+	 
+	 会自动跳转到 登录页面  
+	
+	 -->
+	
+	<security:authentication-manager>	<!-- 定义Security认证管理器 -->
+		<security:authentication-provider>	<!-- 定义认证管理配置类（信息提供者） -->
+			<security:user-service>	<!-- 进行用户信息的创建 -->
+				<!-- 在进行角色信息定义的时候一定要在前面追加有“ROLE_”前缀 -->
+				<!-- 定义一个账户：admin / hello、角色：ADMIN、USER -->
+				<security:user name="admin" authorities="ROLE_ADMIN,ROLE_USER" 
+					password="{bcrypt}$2a$10$2y7higVhnHCn2L8//r/EVed2zi/LrQ.Y.svV.oeLqUM8xfUx5JWQC"/>
+				<!-- 定义一个账户：mldn / java、角色：USER -->
+				<security:user name="mldn" authorities="ROLE_USER" 
+					password="{bcrypt}$2a$10$vjXs780rO3rF8ZAXuBL4..c9icL4JDvr3sweCIU9y/QWiYlHgbKGa"/>
+			</security:user-service>
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+</beans>
